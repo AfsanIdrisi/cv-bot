@@ -241,7 +241,7 @@
     <div class="container">
         <div class="header-row">
             <h1>CV-Bot</h1>
-            <button class="reward-info-btn" onclick="document.getElementById('reward-modal').classList.add('active')">ℹ️ Rewards</button>
+            <button class="reward-info-btn" onclick="document.getElementById('reward-modal').classList.add('active')">[INFO] Rewards</button>
         </div>
         <p class="tagline">AI-Powered Resume Optimizer with Reinforcement Learning</p>
         
@@ -249,7 +249,7 @@
         <div class="card" id="upload-section">
             <div class="upload-section" id="dropzone">
                 <input type="file" id="file-input" accept=".pdf,.docx,.txt" hidden>
-                <div class="upload-icon" id="upload-icon">📁</div>
+                <div class="upload-icon" id="upload-icon">[FILE]</div>
                 <div id="file-name">Drop your resume here or click to browse</div>
                 <div style="font-size: 0.875rem; color: #666; margin-top: 8px;">PDF, DOCX, or TXT</div>
             </div>
@@ -310,8 +310,8 @@
             <div class="error hidden" id="edit-error"></div>
             
             <div class="button-row" style="margin-top: 20px;">
-                <button class="btn btn-secondary" id="back-btn">← Upload Different</button>
-                <button class="btn btn-primary" id="start-btn">Start Optimization →</button>
+                <button class="btn btn-secondary" id="back-btn">Upload Different</button>
+                <button class="btn btn-primary" id="start-btn">Start Optimization</button>
             </div>
         </div>
         
@@ -365,7 +365,7 @@
                 <div class="skills-row" id="missing-skills" style="display: none;"></div>
                 
                 <div class="suggestion-box" id="suggestion-box" style="display: none;">
-                    <div class="suggestion-title">💡 Improvement Suggestion</div>
+                    <div class="suggestion-title">[IDEA] Improvement Suggestion</div>
                     <div id="suggestion-text"></div>
                 </div>
                 
@@ -496,7 +496,7 @@
         function handleFile(f) {
             if (!f) return;
             file = f;
-            document.getElementById('upload-icon').textContent = '📄';
+            document.getElementById('upload-icon').textContent = '[FILE]';
             document.getElementById('file-name').textContent = f.name;
         }
         
@@ -573,7 +573,7 @@
                 showError('edit-error', err.message);
             } finally {
                 startBtn.disabled = false;
-                startBtn.textContent = 'Start Optimization →';
+                startBtn.textContent = 'Start Optimization';
             }
         });
         
@@ -674,7 +674,7 @@
             file = null;
             parsedData = null;
             document.getElementById('file-name').textContent = 'Drop your resume here or click to browse';
-            document.getElementById('upload-icon').textContent = '📁';
+            document.getElementById('upload-icon').textContent = '[FILE]';
             showSection('upload-section');
         });
 
@@ -704,9 +704,9 @@
                 <h3>Bonus Rewards</h3>
                 <table class="reward-table">
                     <tr><th>Bonus</th><th>Value</th><th>Description</th></tr>
-                    <tr><td>ATS Improvement</td><td class="reward-positive">+0.5 × improvement</td><td>Reward for improving ATS score</td></tr>
+                    <tr><td>ATS Improvement</td><td class="reward-positive">+0.5 * improvement</td><td>Reward for improving ATS score</td></tr>
                     <tr><td>ATS Milestone</td><td class="reward-positive">+2.0</td><td>Bonus when reaching ATS 60, 70, 80, 90</td></tr>
-                    <tr><td>Keyword Match</td><td class="reward-positive">+0.3 × improvement</td><td>Reward for matching job keywords</td></tr>
+                    <tr><td>Keyword Match</td><td class="reward-positive">+0.3 * improvement</td><td>Reward for matching job keywords</td></tr>
                     <tr><td>Efficiency Bonus</td><td class="reward-positive">up to +5.0</td><td>Bonus for getting selected in fewer iterations</td></tr>
                 </table>
             </div>
@@ -717,7 +717,7 @@
                     <tr><th>Parameter</th><th>Value</th><th>Description</th></tr>
                     <tr><td>Learning Rate</td><td class="reward-neutral">0.1</td><td>How quickly Q-values are updated</td></tr>
                     <tr><td>Discount Factor</td><td class="reward-neutral">0.95</td><td>Importance of future rewards</td></tr>
-                    <tr><td>Exploration Rate</td><td class="reward-neutral">1.0 → 0.01</td><td>Starts high, decays over episodes</td></tr>
+                    <tr><td>Exploration Rate</td><td class="reward-neutral">1.0 to 0.01</td><td>Starts high, decays over episodes</td></tr>
                 </table>
             </div>
         </div>

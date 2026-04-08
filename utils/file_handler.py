@@ -80,8 +80,8 @@ def extract_experience_years(text: str) -> int:
         return max(years)
 
     date_patterns = [
-        r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{4})\s*[-–to]+\s*(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+)?(\d{4}|Present|Current)",
-        r"(\d{4})\s*[-–to]+\s*(\d{4}|Present|Current)",
+        r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{4})\s*[--to]+\s*(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+)?(\d{4}|Present|Current)",
+        r"(\d{4})\s*[--to]+\s*(\d{4}|Present|Current)",
         r"(\d{4})\s*-\s*(?:Present|Current)",
     ]
 
