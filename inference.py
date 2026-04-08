@@ -145,5 +145,5 @@ def main() -> None:
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
