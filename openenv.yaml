@@ -1,0 +1,12 @@
+spec_version: 1
+name: cv_bot
+type: space
+runtime: docker
+app: server.app:app
+port: 8000
+base_path: /web
+tags:
+- reinforcement-learning
+- resume-optimization
+- ai
+- gemini

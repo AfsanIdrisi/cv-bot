@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV-Bot - Resume Optimizer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .tagline { color: #888; margin-bottom: 2rem; }
+        
+        .card { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+        
+        .upload-section { border: 2px dashed #444; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .upload-section:hover { border-color: #6366f1; background: rgba(99,102,241,0.05); }
+        .upload-section.dragover { border-color: #6366f1; background: rgba(99,102,241,0.1); }
+        .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+        
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; color: #aaa; font-size: 0.875rem; }
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%; padding: 12px; background: #0f0f0f; border: 1px solid #333;
+            border-radius: 8px; color: #fff; font-size: 1rem;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #6366f1; }
+        
+        .btn { padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-primary { background: #6366f1; color: #fff; }
+        .btn-primary:hover { background: #5558e3; }
+        .btn-primary:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .btn-secondary { background: #333; color: #fff; }
+        .btn-secondary:hover { background: #444; }
+        .btn-success { background: #22c55e; color: #fff; }
+        .btn-success:hover { background: #16a34a; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+        
+        .hidden { display: none !important; }
+        
+        .button-row { display: flex; gap: 12px; margin-bottom: 20px; }
+        .button-row .btn { flex: 1; }
+        
+        .error { background: rgba(239,68,68,0.1); border: 1px solid #ef4444; color: #ef4444; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+        
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #333; border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .result-box { background: #0f0f0f; border: 1px solid #333; border-radius: 8px; padding: 16px; }
+        .result-box pre { white-space: pre-wrap; word-wrap: break-word; font-size: 0.875rem; line-height: 1.5; overflow-x: auto; max-height: 400px; color: #22c55e; }
+        
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .result-label { font-weight: 500; }
+        .result-status { font-weight: 600; padding: 4px 12px; border-radius: 4px; }
+        
+        .status-selected { color: #22c55e; }
+        .status-rejected { color: #ef4444; }
+        .status-pending { color: #eab308; }
+        
+        .stats-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .stat-selected .stat-value { color: #22c55e; }
+        .stat-rejected .stat-value { color: #ef4444; }
+        .stat-ats .stat-value { color: #6366f1; }
+        
+        .job-info {
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .job-info-title {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        
+        .job-info-company {
+            font-size: 0.875rem;
+            color: #888;
+        }
+        
+        .skills-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .skill-tag {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        .skill-matched {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+        
+        .skill-missing {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        
+        .suggestion-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid #6366f1;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        
+        .suggestion-title {
+            color: #6366f1;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .reward-display {
+            font-size: 1.125rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        
+        .reward-positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .reward-negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .reward-neutral {
+            background: rgba(136, 136, 136, 0.2);
+            color: #888;
+        }
+        
+        .parsed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .parsed-grid .full-width { grid-column: 1 / -1; }
+        
+        @media (max-width: 600px) {
+            .parsed-grid { grid-template-columns: 1fr; }
+            .button-row { flex-direction: column; }
+        }
+
+        .header-row { display: flex; align-items: center; gap: 16px; margin-bottom: 0.5rem; }
+        .header-row h1 { margin-bottom: 0; }
+        
+        .reward-info-btn {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #888;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .reward-info-btn:hover { border-color: #6366f1; color: #fff; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 90%;
+        }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 1.5rem; }
+        .modal-close { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
+        
+        .reward-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        .reward-table th, .reward-table td { text-align: left; padding: 10px; border-bottom: 1px solid #333; }
+        .reward-table th { color: #888; font-weight: 500; }
+        .reward-positive { color: #22c55e; }
+        .reward-negative { color: #ef4444; }
+        .reward-neutral { color: #888; }
+
+        .reward-section { margin-bottom: 20px; }
+        .reward-section h3 { color: #aaa; margin-bottom: 10px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <h1>CV-Bot</h1>
+            <button class="reward-info-btn" onclick="document.getElementById('reward-modal').classList.add('active')">ℹ️ Rewards</button>
+        </div>
+        <p class="tagline">AI-Powered Resume Optimizer with Reinforcement Learning</p>
+        
+        <!-- SECTION 1: UPLOAD -->
+        <div class="card" id="upload-section">
+            <div class="upload-section" id="dropzone">
+                <input type="file" id="file-input" accept=".pdf,.docx,.txt" hidden>
+                <div class="upload-icon" id="upload-icon">📁</div>
+                <div id="file-name">Drop your resume here or click to browse</div>
+                <div style="font-size: 0.875rem; color: #666; margin-top: 8px;">PDF, DOCX, or TXT</div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Target Role</label>
+                <select id="target-role">
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="DevOps Engineer">DevOps Engineer</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="Product Manager">Product Manager</option>
+                </select>
+            </div>
+            
+            <div class="error hidden" id="upload-error"></div>
+            
+            <button class="btn btn-primary" id="parse-btn" style="width: 100%;">
+                Parse Resume
+            </button>
+        </div>
+        
+        <!-- SECTION 2: EDIT/VERIFIED -->
+        <div class="card hidden" id="edit-section">
+            <h2 style="margin-bottom: 16px;">Review & Edit Resume</h2>
+            <p style="color: #666; margin-bottom: 16px; font-size: 0.875rem;">Verify and edit the extracted information</p>
+            
+            <div class="parsed-grid" id="parsed-form">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="parsed-name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="text" id="parsed-email">
+                </div>
+                <div class="form-group full-width">
+                    <label>Skills (comma separated)</label>
+                    <textarea id="parsed-skills"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>Summary</label>
+                    <textarea id="parsed-summary"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Experience Years</label>
+                    <input type="number" step="0.1" id="parsed-experience">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" id="parsed-phone">
+                </div>
+            </div>
+            
+            <div class="error hidden" id="edit-error"></div>
+            
+            <div class="button-row" style="margin-top: 20px;">
+                <button class="btn btn-secondary" id="back-btn">← Upload Different</button>
+                <button class="btn btn-primary" id="start-btn">Start Optimization →</button>
+            </div>
+        </div>
+        
+        <!-- SECTION 3: BUTTONS + RESULTS -->
+        <div class="card hidden" id="action-section">
+            <h2 style="margin-bottom: 16px;">Actions</h2>
+            
+            <div class="stats-bar" id="stats-bar">
+                <div class="stat-item stat-selected">
+                    <span class="stat-value" id="stat-selected">0</span>
+                    <span class="stat-label">Selected</span>
+                </div>
+                <div class="stat-item stat-rejected">
+                    <span class="stat-value" id="stat-rejected">0</span>
+                    <span class="stat-label">Rejected</span>
+                </div>
+                <div class="stat-item stat-ats">
+                    <span class="stat-value" id="stat-ats">-</span>
+                    <span class="stat-label">Current ATS</span>
+                </div>
+                <div class="stat-item stat-ats">
+                    <span class="stat-value" id="stat-best-ats">-</span>
+                    <span class="stat-label">Best ATS</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-iteration">0</span>
+                    <span class="stat-label">Iteration</span>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" id="step-btn">Step</button>
+                <button class="btn btn-secondary" id="reset-btn">Reset</button>
+                <button class="btn btn-success" id="state-btn">GetState</button>
+            </div>
+            
+            <div class="error hidden" id="action-error"></div>
+            
+            <div class="result-box" id="result-box" style="display: none;">
+                <div class="result-header">
+                    <span class="result-label">Result</span>
+                    <span id="result-status" class="result-status"></span>
+                </div>
+                
+                <div class="job-info" id="job-info" style="display: none;">
+                    <div class="job-info-title" id="job-title">Job Title</div>
+                    <div class="job-info-company" id="job-company">Company</div>
+                </div>
+                
+                <div class="skills-row" id="matched-skills" style="display: none;"></div>
+                <div class="skills-row" id="missing-skills" style="display: none;"></div>
+                
+                <div class="suggestion-box" id="suggestion-box" style="display: none;">
+                    <div class="suggestion-title">💡 Improvement Suggestion</div>
+                    <div id="suggestion-text"></div>
+                </div>
+                
+                <div class="reward-display" id="reward-display"></div>
+                
+                <pre id="result-json"></pre>
+            </div>
+            
+            <div class="result-box" id="initial-result">
+                <pre id="result-placeholder">Click Step, Reset, or GetState to see results...</pre>
+            </div>
+            
+            <button class="btn btn-secondary" id="new-resume-btn" style="width: 100%; margin-top: 16px;">
+                Upload New Resume
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '';
+        
+        let file = null;
+        let parsedData = null;
+        
+        // Elements
+        const fileInput = document.getElementById('file-input');
+        const dropzone = document.getElementById('dropzone');
+        const parseBtn = document.getElementById('parse-btn');
+        const startBtn = document.getElementById('start-btn');
+        const backBtn = document.getElementById('back-btn');
+        const stepBtn = document.getElementById('step-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const stateBtn = document.getElementById('state-btn');
+        const newResumeBtn = document.getElementById('new-resume-btn');
+        
+        // Show/hide sections
+        function showSection(sectionId) {
+            document.getElementById('upload-section').classList.add('hidden');
+            document.getElementById('edit-section').classList.add('hidden');
+            document.getElementById('action-section').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+        
+        function showError(elemId, msg) {
+            document.getElementById(elemId).textContent = msg;
+            document.getElementById(elemId).classList.remove('hidden');
+        }
+        
+        function hideError(elemId) {
+            document.getElementById(elemId).classList.add('hidden');
+        }
+
+        function updateStats(obs) {
+            document.getElementById('stat-selected').textContent = obs.total_selected || 0;
+            document.getElementById('stat-rejected').textContent = obs.total_rejected || 0;
+            document.getElementById('stat-ats').textContent = obs.ats_score ? obs.ats_score.toFixed(1) : '-';
+            document.getElementById('stat-best-ats').textContent = obs.best_ats_sofar ? obs.best_ats_sofar.toFixed(1) : '-';
+            document.getElementById('stat-iteration').textContent = obs.iteration_count || 0;
+        }
+
+        function displayResult(obs) {
+            document.getElementById('initial-result').style.display = 'none';
+            document.getElementById('result-box').style.display = 'block';
+            
+            updateStats(obs);
+            
+            const statusElem = document.getElementById('result-status');
+            const jobInfo = document.getElementById('job-info');
+            const matchedSkills = document.getElementById('matched-skills');
+            const missingSkills = document.getElementById('missing-skills');
+            const suggestionBox = document.getElementById('suggestion-box');
+            const rewardDisplay = document.getElementById('reward-display');
+            const resultJson = document.getElementById('result-json');
+            
+            const result = obs.application_result || 'pending';
+            statusElem.textContent = result.charAt(0).toUpperCase() + result.slice(1);
+            statusElem.className = 'result-status status-' + result;
+            
+            if (obs.job_title) {
+                document.getElementById('job-title').textContent = obs.job_title;
+                document.getElementById('job-company').textContent = obs.job_company || 'Unknown Company';
+                jobInfo.style.display = 'block';
+            } else {
+                jobInfo.style.display = 'none';
+            }
+            
+            if (obs.matched_skills && obs.matched_skills.length > 0) {
+                matchedSkills.innerHTML = '<span style="color:#888;font-size:0.75rem;">Matched: </span>' + 
+                    obs.matched_skills.map(s => `<span class="skill-tag skill-matched">${s}</span>`).join('');
+                matchedSkills.style.display = 'flex';
+            } else {
+                matchedSkills.style.display = 'none';
+            }
+            
+            if (obs.missing_skills && obs.missing_skills.length > 0) {
+                missingSkills.innerHTML = '<span style="color:#888;font-size:0.75rem;">Missing: </span>' + 
+                    obs.missing_skills.map(s => `<span class="skill-tag skill-missing">${s}</span>`).join('');
+                missingSkills.style.display = 'flex';
+            } else {
+                missingSkills.style.display = 'none';
+            }
+            
+            if (obs.suggested_improvement) {
+                document.getElementById('suggestion-text').textContent = obs.suggested_improvement;
+                suggestionBox.style.display = 'block';
+            } else {
+                suggestionBox.style.display = 'none';
+            }
+            
+            const reward = obs.step_reward || 0;
+            rewardDisplay.textContent = `Reward: ${reward >= 0 ? '+' : ''}${reward.toFixed(2)}`;
+            rewardDisplay.className = 'reward-display ' + (reward > 0 ? 'reward-positive' : (reward < 0 ? 'reward-negative' : 'reward-neutral'));
+            
+            resultJson.textContent = JSON.stringify(obs, null, 2);
+        }
+        
+        // File upload handlers
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        
+        function handleFile(f) {
+            if (!f) return;
+            file = f;
+            document.getElementById('upload-icon').textContent = '📄';
+            document.getElementById('file-name').textContent = f.name;
+        }
+        
+        // Parse resume
+        parseBtn.addEventListener('click', async () => {
+            if (!file) {
+                showError('upload-error', 'Please upload a resume file');
+                return;
+            }
+            hideError('upload-error');
+            
+            parseBtn.disabled = true;
+            parseBtn.innerHTML = '<span class="spinner"></span> Parsing...';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const res = await fetch(API_BASE + '/parse-resume', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.detail || 'Parse failed');
+                
+                parsedData = data.parsed;
+                
+                // Fill edit form
+                document.getElementById('parsed-name').value = parsedData.name || '';
+                document.getElementById('parsed-email').value = parsedData.email || '';
+                document.getElementById('parsed-phone').value = parsedData.phone || '';
+                document.getElementById('parsed-skills').value = (parsedData.skills || []).join(', ');
+                document.getElementById('parsed-summary').value = parsedData.summary || '';
+                document.getElementById('parsed-experience').value = parsedData.experience_years || 0;
+                
+                showSection('edit-section');
+            } catch (err) {
+                showError('upload-error', err.message);
+            } finally {
+                parseBtn.disabled = false;
+                parseBtn.textContent = 'Parse Resume';
+            }
+        });
+        
+        // Start optimization
+        startBtn.addEventListener('click', async () => {
+            const targetRole = document.getElementById('target-role').value;
+            
+            const action = {
+                skills: document.getElementById('parsed-skills').value.split(',').map(s => s.trim()).filter(s => s),
+                experience_years: parseFloat(document.getElementById('parsed-experience').value) || 0,
+                summary: document.getElementById('parsed-summary').value,
+                target_role: targetRole,
+                projects: parsedData.projects || [],
+                education: parsedData.education || [],
+                keywords: parsedData.keywords || parsedData.skills || []
+            };
+            
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<span class="spinner"></span> Initializing...';
+            
+            try {
+                // Use session-reset to maintain state
+                const res = await fetch(API_BASE + '/session-reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action })
+                });
+                
+                if (!res.ok) throw new Error('Reset failed');
+                
+                const data = await res.json();
+                document.getElementById('result-json').textContent = JSON.stringify(data, null, 2);
+                showSection('action-section');
+            } catch (err) {
+                showError('edit-error', err.message);
+            } finally {
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start Optimization →';
+            }
+        });
+        
+        // Back to upload
+        backBtn.addEventListener('click', () => {
+            showSection('upload-section');
+            parsedData = null;
+        });
+        
+        // Step button
+        stepBtn.addEventListener('click', async () => {
+            stepBtn.disabled = true;
+            stepBtn.innerHTML = '<span class="spinner"></span> Applying...';
+            hideError('action-error');
+            
+            try {
+                const res = await fetch(API_BASE + '/session-step', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Step failed');
+                
+                displayResult(data.observation);
+
+            } catch (err) {
+                showError('action-error', err.message);
+            } finally {
+                stepBtn.disabled = false;
+                stepBtn.textContent = 'Step';
+            }
+        });
+        
+        // Reset button
+        resetBtn.addEventListener('click', async () => {
+            const targetRole = document.getElementById('target-role').value;
+            
+            resetBtn.disabled = true;
+            resetBtn.innerHTML = '<span class="spinner"></span> Resetting...';
+            hideError('action-error');
+            
+            try {
+                const action = {
+                    skills: document.getElementById('parsed-skills').value.split(',').map(s => s.trim()).filter(s => s),
+                    experience_years: parseFloat(document.getElementById('parsed-experience').value) || 0,
+                    summary: document.getElementById('parsed-summary').value,
+                    target_role: targetRole,
+                    projects: parsedData.projects || [],
+                    education: parsedData.education || [],
+                    keywords: parsedData.keywords || parsedData.skills || []
+                };
+                
+                const res = await fetch(API_BASE + '/session-reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action })
+                });
+                
+                if (!res.ok) throw new Error('Reset failed');
+                
+                const data = await res.json();
+                displayResult(data.observation);
+                
+            } catch (err) {
+                showError('action-error', err.message);
+            } finally {
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Reset';
+            }
+        });
+
+        // GetState button
+        stateBtn.addEventListener('click', async () => {
+            stateBtn.disabled = true;
+            stateBtn.innerHTML = '<span class="spinner"></span> Getting...';
+            hideError('action-error');
+            
+            try {
+                const res = await fetch(API_BASE + '/session-state');
+                const data = await res.json();
+                
+                document.getElementById('initial-result').style.display = 'none';
+                document.getElementById('result-box').style.display = 'block';
+                document.getElementById('result-json').textContent = JSON.stringify(data, null, 2);
+                
+            } catch (err) {
+                showError('action-error', err.message);
+            } finally {
+                stateBtn.disabled = false;
+                stateBtn.textContent = 'GetState';
+            }
+        });
+        
+        // New resume button
+        newResumeBtn.addEventListener('click', () => {
+            file = null;
+            parsedData = null;
+            document.getElementById('file-name').textContent = 'Drop your resume here or click to browse';
+            document.getElementById('upload-icon').textContent = '📁';
+            showSection('upload-section');
+        });
+
+        // Reward info modal - now handled via inline onclick
+    </script>
+
+    <!-- Reward Info Modal -->
+    <div class="modal-overlay" id="reward-modal" onclick="if(event.target === this) this.classList.remove('active')">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Reward System</h2>
+                <button class="modal-close" onclick="document.getElementById('reward-modal').classList.remove('active')">&times;</button>
+            </div>
+            
+            <div class="reward-section">
+                <h3>Base Rewards & Penalties</h3>
+                <table class="reward-table">
+                    <tr><th>Outcome</th><th>Reward</th><th>Description</th></tr>
+                    <tr><td>Selected</td><td class="reward-positive">+10.0</td><td>Resume selected by employer</td></tr>
+                    <tr><td>Near Selected</td><td class="reward-positive">+2.0</td><td>Close to being selected (within 5 ATS points)</td></tr>
+                    <tr><td>Rejected</td><td class="reward-negative">-1.0</td><td>Resume rejected</td></tr>
+                    <tr><td>Step Reward</td><td class="reward-neutral">+0.1</td><td>Small reward per step to reduce sparsity</td></tr>
+                </table>
+            </div>
+
+            <div class="reward-section">
+                <h3>Bonus Rewards</h3>
+                <table class="reward-table">
+                    <tr><th>Bonus</th><th>Value</th><th>Description</th></tr>
+                    <tr><td>ATS Improvement</td><td class="reward-positive">+0.5 × improvement</td><td>Reward for improving ATS score</td></tr>
+                    <tr><td>ATS Milestone</td><td class="reward-positive">+2.0</td><td>Bonus when reaching ATS 60, 70, 80, 90</td></tr>
+                    <tr><td>Keyword Match</td><td class="reward-positive">+0.3 × improvement</td><td>Reward for matching job keywords</td></tr>
+                    <tr><td>Efficiency Bonus</td><td class="reward-positive">up to +5.0</td><td>Bonus for getting selected in fewer iterations</td></tr>
+                </table>
+            </div>
+
+            <div class="reward-section">
+                <h3>RL Parameters</h3>
+                <table class="reward-table">
+                    <tr><th>Parameter</th><th>Value</th><th>Description</th></tr>
+                    <tr><td>Learning Rate</td><td class="reward-neutral">0.1</td><td>How quickly Q-values are updated</td></tr>
+                    <tr><td>Discount Factor</td><td class="reward-neutral">0.95</td><td>Importance of future rewards</td></tr>
+                    <tr><td>Exploration Rate</td><td class="reward-neutral">1.0 → 0.01</td><td>Starts high, decays over episodes</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>

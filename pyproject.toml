@@ -1,0 +1,56 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-cv_bot"
+version = "0.1.0"
+description = "Cv Bot environment for OpenEnv"
+requires-python = ">=3.10"
+dependencies = [
+    # Core OpenEnv runtime (provides FastAPI server + HTTP client types)
+    # install from github
+    # "openenv-core[core] @ git+https://github.com/meta-pytorch/OpenEnv.git",
+    "openenv-core[core]>=0.2.2",
+    # Environment-specific dependencies
+    # Backend dependencies for resume optimization
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "google-genai>=0.3.0",
+    "pdfplumber>=0.10.0",
+    "python-docx>=0.8.11",
+    "numpy>=1.24.0",
+    "tqdm>=4.65.0",
+    "rich>=13.0.0",
+    "python-multipart>=0.0.6",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.scripts]
+# Server entry point - enables running via: uv run --project . server
+# or: python -m cv_bot.server.app
+server = "cv_bot.server.app:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["cv_bot", "cv_bot.server", "cv_bot.core", "cv_bot.utils", "cv_bot.config", "cv_bot.data_models"]
+
+[tool.setuptools.package-dir]
+"cv_bot" = "."
+"cv_bot.server" = "server"
+"cv_bot.core" = "core"
+"cv_bot.utils" = "utils"
+"cv_bot.config" = "config"
+"cv_bot.data_models" = "data_models"

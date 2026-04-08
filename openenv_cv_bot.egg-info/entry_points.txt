@@ -1,0 +1,2 @@
+[console_scripts]
+server = cv_bot.server.app:main
